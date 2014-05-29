@@ -6,8 +6,19 @@ import math
 import vecFuncs as vecF
 import utilFunctions as utlF
 
+#----TODO----#
+#
+#
+# implement bounceDeform
+# refactor bounce implementation (1 function?)
+# make calculating bounce height a function 
+# implement bounce in main 
+# 
+#
+#------------#
+
 class poly(sf.ConvexShape):
-	def __init__(self, points,posX,posY,color,oColor,oThick,totMass):
+	def __init__(self,points,posX,posY,color,oColor,oThick,totMass):
 		self.point_count=len(points)
 		self.points=self.ccwReOrder(points)
 		self.position=(posX,posY)
@@ -18,12 +29,15 @@ class poly(sf.ConvexShape):
 		self.outline_thickness=oThick
 		self.calcCentroid()
 		self.totMass=totMass
+
 	def updateAll(self):
 		self.calcCentroid()
 		self.ccwReOrder(self.points)
+	
 	def ccwReOrder(self,pVec):
 		for i in range(len(pVec)):
 			pass
+	
 	def calcCentroid(self):
 		self.ccwReOrder(self.points)
 		a=float(0)
@@ -55,9 +69,12 @@ class box(sf.RectangleShape):
 		self.outline_color=oColor
 		self.outline_thickness=oThick
 		self.mass=mass
+		self.goingUp=False
+	 
 	def updateBounds(self):
 		self.topLeft=utlF.createCorners(self.position,self.size[1],self.size[0])[0]
 		self.bottomRight=utlF.createCorners(self.position,self.size[1],self.size[0])[1]
+	
 	def calcForces(self,floor,fVec=(0,0)):
 		self.updateBounds()
 		if self.bottomRight[1]>=floor:
@@ -70,6 +87,7 @@ class box(sf.RectangleShape):
 			deltaX=((dt**2)*fVec[0])/self.mass
 		deltaY=dt*(self.prevV+dt*((fVec[1]-(self.mass*g))/self.mass))
 		self.prevV=deltaY*60
+		self.move((deltaX,-deltaY))
 		return sf.Vector2(deltaX,-deltaY)
 
 
@@ -87,9 +105,11 @@ class circle(sf.CircleShape):
 		self.outline_color=oColor
 		self.outline_thickness=oThick
 		self.mass=mass
+	
 	def updateBounds(self):
 		self.topLeft=utlF.createCorners(self.position,self.size[1],self.size[0])[0]
 		self.bottomRight=utlF.createCorners(self.position,self.size[1],self.size[0])[1]
+	
 	def calcForces(self,floor,fVec=(0,0)):
 		self.updateBounds()
 		if self.bottomRight[1]>=floor:
@@ -102,6 +122,7 @@ class circle(sf.CircleShape):
 			deltaX=((dt**2)*fVec[0])/self.mass
 		deltaY=dt*(self.prevV+dt*((fVec[1]-(self.mass*g))/self.mass))
 		self.prevV=deltaY*60
+		self.move((deltaX,-deltaY))
 		return sf.Vector2(deltaX,-deltaY)
 
 class line(sf.RectangleShape): # implementation is iffy
@@ -119,6 +140,7 @@ class line(sf.RectangleShape): # implementation is iffy
 		self.outline_thickness=0
 		self.postion=sPoint
 		self.rotate(self.angle-self.pAngle)
+	
 	def updateAll(self,sPoint,ePoint):
 		self.position=sPoint
 		self.endPoints=[list(sPoint),list(ePoint)]
@@ -128,30 +150,47 @@ class line(sf.RectangleShape): # implementation is iffy
 		self.angle=utlF.calcAngleDeg(sPoint,ePoint)
 		self.rotate(self.angle-self.pAngle)
 
-
-	
-
 class scene(sf.RenderWindow):
 	def __init__(self,windowWidth,windowHeight,title,color,icon=None):
-		super(scene,self).__init__(self,sf.VideoMode(windowWidth,windowHeight),title)
+		super(scene,self).__init__(sf.VideoMode(int(windowWidth),int(windowHeight)),str(title))
 		self.framerate_limit=60
 		self.color=color
 		if icon != None:
 			self.icon=icon.pixels
 		self.objects=[]
-	def initPoly(self):
-		pass
-	def initBox(self):
-		pass
-	def initCircle(self):
-		pass
-	def initLine(self):
-		pass	
-	def draw(self):
-		pass
+
+	def initPoly(self,points,posX,posY,color,oColor=sf.Color.BLACK,oThick=1,totMass=10):
+		self.objects.append(poly(points,posX,posY,color,oColor,oThick,totMass))
+
+	def initBox(self,width,height,posX,posY,color,oColor=sf.Color.BLACK,oThick=1,mass=10):
+		self.objects.append(box(width,height,posX,posY,color,oColor,oThick,mass))
+
+	def initCircle(self,radius,posX,posY,color,oColor=sf.Color.BLACK,oThick=1,mass=10):
+		self.objects.append(circle(radius,posX,posY,color,oColor,oThick,mass))
+
+	def initLine(self,sPoint,ePoint):
+		self.objects.append(line(sPoint,ePoint))
 
 def main():
-	pass
+	window=scene(1000,600,"Test",sf.Color(50,100,150,255))
+
+	window.initBox(50,50,500,300,sf.Color.GREEN)
+	window.initBox(50,50,600,300,sf.Color.CYAN)
+	window.initBox(50,50,400,300,sf.Color.MAGENTA)
+
+	while window.is_open:
+		window.clear(window.color)
+
+		for event in window.events:
+			if type(event)==sf.CloseEvent:
+				window.close()
+
+		for i in range(len(window.objects)):
+			window.objects[i].calcForces(window.size.y)
+			window.draw(window.objects[i])
+
+
+		window.display()
 
 if __name__=='__main__':
 	main()
