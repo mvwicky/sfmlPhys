@@ -12,8 +12,8 @@ class spring(sf.RectangleShape):
 		self.origin=(width/2,height/2)
 		self.size=(width,height)
 		self.position=(posX,posY)
-		self.topLeft=utlF.createCorners(self.position,self.size[1],self.size[0])[0]
-		self.bottomRight=utlF.createCorners(self.position,self.size[1],self.size[0])[1]
+		self.topLeft=utlF.createCorners(self.position,self.size)[0]
+		self.bottomRight=utlF.createCorners(self.position,self.size)[1]
 		self.posNot=self.position # initial position
 		self.prevV=0 # velocity (deltaY) in the previous frame
 		self.gravAcc=98.1 # acceleration due to gravity
@@ -26,11 +26,12 @@ class spring(sf.RectangleShape):
 		self.goingUp=False
 		self.deltas=[] # contains all of the deltas calculated by calcForces (don't know why)
 		self.numBounces=1
-		self.curMaxHeight=self.posNot[1]+(self.springConstant*((self.numBounces+3)**2)) # the max height that the spring will bounce to
+		self.curMaxHeight=utlF.calcCurMaxHeight(posNot[1],self.springConstant,self.numBounces)
+			# the max height that the spring will bounce to
 		
 	def updateBounds(self):
-		self.topLeft=utlF.createCorners(self.position,self.size[1],self.size[0])[0]
-		self.bottomRight=utlF.createCorners(self.position,self.size[1],self.size[0])[1]
+		self.topLeft=utlF.createCorners(self.position,self.size)[0]
+		self.bottomRight=utlF.createCorners(self.position,self.size)[1]
 
 	def calcForces(self,floor,fVec=(0,0)):
 		self.updateBounds()
@@ -55,8 +56,7 @@ class spring(sf.RectangleShape):
 		self.prevV=deltaY*60
 		self.deltas.append((-deltaY))
 
-		if self.prevV!=deltaY:
-			# print these if the box moved last frame
+		if self.prevV!=deltaY: # if the box moved last frame
 			pass
 			#print("deltaY=",deltaY)
 			#print("Momentum=",deltaY*self.mass)
@@ -82,7 +82,7 @@ class spring(sf.RectangleShape):
 			self.goingUp=False
 			self.numBounces+=1
 			#print(self.numBounces)
-			self.curMaxHeight=self.curMaxHeight+(self.springConstant*((self.numBounces+3)**2))
+			self.curMaxHeight+=(self.springConstant*((self.numBounces+3)**2))
 
 	def bounceDeform(self, floor, defConst=5):
 		pass

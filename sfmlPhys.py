@@ -3,42 +3,53 @@ import sys
 import os
 import random
 import math
-import vecFuncs as vecF
 import utilFunctions as utlF
 
-#----TODO----#
+
+#--------------------TODO--------------------#
 #
 #
-# implement bounceDeform
-# refactor bounce implementation (1 function?)
-# make calculating bounce height a function 
-# implement bounce in main 
+#
+# 1. refactor bounce implementation (1 function?) 
+# 	a. make calculating bounce height a function 
+# 2. implement bounceDeform
+# 3. implement bounce in main file
+# 	a. replace xnot with posNot
+# 4. implement polygons in its own file
+# 	a. then implement in the main file 
+# 5. refactor sfmlPhys.py
+# 	a. complete rewrite basically
+#		i. incorporating redesigned polys
+#		   and spring physics
+# 	b. split into multiple files
+#	c. actually figure out polygons
+# 6. make the re-ordering algorithm
 # 
 #
-#------------#
+#
+#--------------------TODO--------------------#
 
-class poly(sf.ConvexShape):
+
+
+class poly(sf.ConvexShape): # needs reimplementation
 	def __init__(self,points,posX,posY,color,oColor,oThick,totMass):
-		self.point_count=len(points)
-		self.points=self.ccwReOrder(points)
+		super(poly,self).__init__()
+		self.point_count=len(points) 
+		self.points=utlF.ccwReOrder(points)
 		self.position=(posX,posY)
 		self.topLeft=sf.Vector2()
 		self.bottomRight=sf.Vector2()
 		self.fill_color=color
 		self.outline_color=oColor
 		self.outline_thickness=oThick
-		self.calcCentroid()
+		self.centroid=self.calcCentroid()
 		self.totMass=totMass
 
-	def updateAll(self):
-		self.calcCentroid()
-		self.ccwReOrder(self.points)
+	def updateAll(self):		
+		self.points=utlF.ccwReOrder(self.points)
+		self.centroid=self.calcCentroid()
 	
-	def ccwReOrder(self,pVec):
-		for i in range(len(pVec)):
-			pass
-	
-	def calcCentroid(self):
+	def calcCentroid(self): # REFACTOR: Lines are too long
 		self.ccwReOrder(self.points)
 		a=float(0)
 		c_x=float(0)
@@ -52,7 +63,6 @@ class poly(sf.ConvexShape):
 		a*=(float(1)/float(2))		
 		c_x*=(1/(6*a))
 		c_y*=(1/(6*a))
-		self.centroid=sf.Vector2(c_x,c_y)
 		return sf.Vector2(c_x,c_y)
 
 class box(sf.RectangleShape):
@@ -72,8 +82,8 @@ class box(sf.RectangleShape):
 		self.goingUp=False
 	 
 	def updateBounds(self):
-		self.topLeft=utlF.createCorners(self.position,self.size[1],self.size[0])[0]
-		self.bottomRight=utlF.createCorners(self.position,self.size[1],self.size[0])[1]
+		self.topLeft=utlF.createCorners(self.position,self.size)[0]
+		self.bottomRight=utlF.createCorners(self.position,self.size)[1]
 	
 	def calcForces(self,floor,fVec=(0,0)):
 		self.updateBounds()
@@ -107,8 +117,8 @@ class circle(sf.CircleShape):
 		self.mass=mass
 	
 	def updateBounds(self):
-		self.topLeft=utlF.createCorners(self.position,self.size[1],self.size[0])[0]
-		self.bottomRight=utlF.createCorners(self.position,self.size[1],self.size[0])[1]
+		self.topLeft=utlF.createCorners(self.position,self.size)[0]
+		self.bottomRight=utlF.createCorners(self.position,self.size)[1]
 	
 	def calcForces(self,floor,fVec=(0,0)):
 		self.updateBounds()
@@ -125,7 +135,7 @@ class circle(sf.CircleShape):
 		self.move((deltaX,-deltaY))
 		return sf.Vector2(deltaX,-deltaY)
 
-class line(sf.RectangleShape): # implementation is iffy
+class line(sf.RectangleShape): # implementation is iffy(at best)
 	def __init__(self,sPoint,ePoint):
 		super(line,self).__init__()
 		self.endPoints=[list(sPoint),list(ePoint)]
@@ -172,25 +182,7 @@ class scene(sf.RenderWindow):
 		self.objects.append(line(sPoint,ePoint))
 
 def main():
-	window=scene(1000,600,"Test",sf.Color(50,100,150,255))
-
-	window.initBox(50,50,500,300,sf.Color.GREEN)
-	window.initBox(50,50,600,300,sf.Color.CYAN)
-	window.initBox(50,50,400,300,sf.Color.MAGENTA)
-
-	while window.is_open:
-		window.clear(window.color)
-
-		for event in window.events:
-			if type(event)==sf.CloseEvent:
-				window.close()
-
-		for i in range(len(window.objects)):
-			window.objects[i].calcForces(window.size.y)
-			window.draw(window.objects[i])
-
-
-		window.display()
+	pass
 
 if __name__=='__main__':
 	main()

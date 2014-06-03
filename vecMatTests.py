@@ -1,9 +1,13 @@
 #
 # file for testing the matrixFuncs and vecFuncs libraries
 #
-import matrixFuncs as mF 
-import vecFuncs as vF 
+import vecFuncs as vecF
+import utilFunctions as utlF
+import sfml as sf 
 import os
+import sys
+import math
+import random as rand
 
 def clear():
 	os.system('cls')
@@ -14,16 +18,6 @@ def pause():
 
 def main():
 	clear()
-	print('')
-	m1=mF.createSquareMatrix(5)
-	m2=mF.createSquareMatrix(5,True)
-	m3=mF.createSquareMatrix(5)
-
-	mF.printMatrix(m1)
-	print("")
-	mF.printMatrix(m2)
-	print("")
-	mF.printMatrix(m3)
 	
 
 if __name__ == '__main__':

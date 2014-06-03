@@ -1,7 +1,7 @@
+import math
+import utilFunctions as utlF
 #
 # a library for manipulating vectors (nx1 matricies)
-#
-# creates a vector class that extends list
 #
 
 def dotProduct(a,b): # returns the dot product of two vectors a and b
