@@ -24,6 +24,8 @@ import utilFunctions as utlF
 # 	b. split into multiple files
 #	c. actually figure out polygons
 # 6. make the re-ordering algorithm
+# 7. Implement collision detection
+# 8. Documentation
 # 
 #
 #

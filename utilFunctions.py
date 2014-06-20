@@ -32,6 +32,12 @@ def vecCheck(tVec, types=(tuple,list,Vector2,Vector3)):
 	else:
 		return False
 
+def typeCheck(input,types):
+	if type(input) in types:
+		return True
+	else:
+		return False
+
 def inVPlane(xCoord,tL,bR): # tL and bR should be the top left and bottom right 
 							# coordinates(bounds) of the object
 	if vecCheck(tL) and vecCheck(bR):
@@ -81,8 +87,19 @@ def createCorners(center,width,height=None):
 
 def ccwReOrder(pVec): # TODO
 # orders the points in pVec in a counter clockwise fashion	
-	for i in range(len(pVec)): # x coordinates
-		pass
+	rightMost=pVec[0] # makes the first coordinate the right-most
+	rightMostInd=0
+	ccwVec=[]
+	for i in range(len(pVec)): # finds the rightmost
+		if (pVec[i][0]>=rightMost[0])and(pVec[i][1]>rightMost[1]):
+		# if the next point it further right and further up
+			rightMost=pVec[i]
+			rightMostInd=i
+	ccwVec.append(rightMost)
+	del pVec[rightMostInd]
+
+
+
 
 def cwReOrder(pVec): # TODO
 # orders the points in pVec in a clockwise fashion
@@ -128,4 +145,4 @@ def getDefaultArgs(windowWidth,windowHeight):
 	return [size,position,color,oColor,oThick,mass]
 
 def calcCurMaxHeight(springConstant,numBounces):
-	return (springConstant*((self.numBounces+3)))
+	return (springConstant*((numBounces+3)))
